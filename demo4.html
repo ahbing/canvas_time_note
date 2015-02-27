@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>canvas小球</title>
+    <script>
+    	var WINDOW_WIDTH  = 1024,
+    		WINDOW_HEIGTH = 768,
+    		RADIUS = 8,
+    		MARGIN_TOP = 60,
+    		MARGIN_LEFT =30;
+
+    	var endTime = new Date(2015,1,28,12,34,56);
+    	var curTime;
+        var balls = [];
+        var colors = ["#33B5E5","#0099CC","#AA66CC","#9933CC","#99CC00","#669900","#FFBB33","#FF8800","#FF4444","#CC0000"];
+
+        /*
+            画运动小球的原理
+            在改变时间差的时候检测哪里的数字需要改变  记录要改变的数字的位置 和 数字
+            
+            重新绘制这些小球的样子  并给以 不同的颜色
+            随机设置左右速度 加速度 颜色 并更新
+
+        */
+    	window.onload = function(){
+    		var canvas = document.getElementById('canvas');
+    		var context = canvas.getContext('2d');
+    		canvas.width = WINDOW_WIDTH;
+    		canvas.height = WINDOW_HEIGTH;
+    		curTime = getCurTime();  //获取时间差 
+
+    		setInterval(function(){
+    			render( context );
+    			update();
+
+    		},50);
+
+
+    		console.log(curTime);
+    	}
+
+
+    	function getCurTime(){
+    		var tmpTime = endTime.getTime() - new Date().getTime();  //规定的时间减去当前时间
+    		tmpTime = Math.round(tmpTime/1000);  //化为秒  四舍五入
+    		return tmpTime >= 0 ? tmpTime : 0; 
+    	}
+
+    	function update(){
+    		var nextTime = getCurTime();
+    		var nextHours = parseInt(nextTime / 3600);
+    		var nextMinutes = parseInt(( nextTime - nextHours * 3600) / 60);
+    		var nextSeconds = nextTime % 60;
+
+    		var curHours = parseInt(curTime / 3600);
+    		var curMinutes = parseInt( (curTime - curHours * 3600)/ 60);
+    		var curSeconds = curTime % 60;
+    		
+    		if(nextSeconds != curSeconds){ //时间差有所变动
+
+
+                if(parseInt(nextHours/10) != parseInt(curHours/10)){
+                    addBall(MARGIN_LEFT,MARGIN_TOP,parseInt(curHours/10));
+                }
+
+                if(nextHours%10 != curHours %10){
+                    addBall(MARGIN_LEFT+15*(RADIUS+1), MARGIN_TOP ,curHours%10);
+                }
+
+                if(parseInt(nextMinutes/10) != parseInt(curMinutes / 10)){
+                    addBall(MARGIN_LEFT+39*(RADIUS+1), MARGIN_TOP, curMinutes /10);
+                }
+
+                if(nextMinutes % 10 != curMinutes % 10){
+                    addBall(MARGIN_LEFT+54*(RADIUS+1), MARGIN_TOP, curMinutes %10);
+                }
+
+                if(parseInt(nextSeconds / 10) != parseInt(curSeconds / 10)){
+                    addBall(MARGIN_LEFT+78*(RADIUS+1), MARGIN_TOP, curSeconds / 10);
+                }
+
+                if(nextSeconds % 10 != curSeconds % 10){
+                    addBall(MARGIN_LEFT+93*(RADIUS+1), MARGIN_TOP, curSeconds % 10);
+                }
+
+    			curTime = nextTime;
+    		}
+            //更新 小球运动
+            upDateBall();
+    	}
+
+        function upDateBall(){
+            for(var i = 0; i < balls.length; i++){
+                balls[i].x += balls[i].vx;  //改变圆心
+                balls[i].y += balls[i].vy;
+                balls[i].vy += balls[i].g;
+                //碰撞检测
+                if(WINDOW_HEIGTH - RADIUS <= balls[i].y){
+                    balls[i].y = WINDOW_HEIGTH - RADIUS;
+                    balls[i].vy = -balls[i].vy*0.75; 
+                }
+            }
+        }
+
+        function addBall( x, y, num){
+            for(var i = 0; i < digit[num].length; i++){
+                for(var j = 0; j < digit[num][i].length; j++){
+                    var aBall = {
+                        x:x+j*(RADIUS+1)*2+(RADIUS+1),
+                        y:y+i*(RADIUS+1)*2+(RADIUS+1),
+                        vx:Math.pow(-1, Math.ceil(Math.random()*1000))*4,
+                        vy:-5,
+                        g:Math.random()+1.5,
+                        color:colors[Math.floor(Math.random()*colors.length)]
+                    }
+                    balls.push(aBall);  //之后去render
+                }
+            }
+        }
+
+    	function render(ctx){
+    		// 重新渲染之前 清除原来的内容
+    		ctx.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGTH);
+
+    		var hours = parseInt(curTime/3600);
+    		var minutes = parseInt((curTime - hours*3600)/60);
+    		var seconds = curTime % 60;
+
+    		renderNum( MARGIN_LEFT , MARGIN_TOP , parseInt(hours/10) , ctx )
+		    renderNum( MARGIN_LEFT + 15*(RADIUS+1) , MARGIN_TOP , parseInt(hours%10) , ctx )
+		    renderNum( MARGIN_LEFT + 30*(RADIUS+1) , MARGIN_TOP , 10 , ctx )
+		    renderNum( MARGIN_LEFT + 39*(RADIUS+1) , MARGIN_TOP , parseInt(minutes/10) , ctx);
+		    renderNum( MARGIN_LEFT + 54*(RADIUS+1) , MARGIN_TOP , parseInt(minutes%10) , ctx);
+		    renderNum( MARGIN_LEFT + 69*(RADIUS+1) , MARGIN_TOP , 10 , ctx);
+		    renderNum( MARGIN_LEFT + 78*(RADIUS+1) , MARGIN_TOP , parseInt(seconds/10) , ctx);
+		    renderNum( MARGIN_LEFT + 93*(RADIUS+1) , MARGIN_TOP , parseInt(seconds%10) , ctx);
+
+            //绘制运动小球
+            for(var i = 0; i < balls.length; i++){
+                ctx.fillStyle = balls[i].color;
+                ctx.beginPath();
+                ctx.arc(balls[i].x, balls[i].y, RADIUS, 0, Math.PI*2);
+                ctx.closePath();
+
+                ctx.fill();
+            }
+    	}
+
+    	function renderNum( x, y, num, ctx){
+
+    		ctx.fillStyle = "rgb(0,102,153)";
+
+    		for(var i = 0; i < digit[num].length; i++){
+    			for(var j= 0; j < digit[num][i].length; j++){
+    				if(digit[num][i][j] == 1){
+    					ctx.beginPath();
+    					ctx.arc(x+j*(RADIUS+1)*2, y+i*(RADIUS+1)*2, RADIUS, 0, 2*Math.PI);
+    					ctx.fill();	
+    				}
+    			}
+    		}
+    	}
+
+    </script>
+</head>
+<body>
+    <canvas id="canvas" style="display:block;margin:50px auto;">
+        当前浏览器不支持Canvas，请更换浏览器后再试
+    </canvas>
+
+    <script src="digit.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+
+    var WINDOW_WHDTH = 1024,
+    	WINDOW_HEIGHT = 768,
+    	RADIUS = 8,
+    	MARGIN_TOP = 60,
+    	MARGIN_LEFT = 30;
+
+
+    window.onload = function(){
+
+     	var canvas = document.getElementById('canvas');
+
+     	var context  = canvas.getContext('2d');
+
+     	canvas.width = WINDOW_WHDTH;
+
+     	canvas.height = WINDOW_HEIGHT;
+
+     	render( context );
+
+    }
+
+    function render(ctx){
+    	var hours = 12;
+    	var minutes = 34;
+    	var seconds = 56;
+
+    	renderNum(MARGIN_LEFT,MARGIN_TOP,parseInt(hours/10),ctx);
+    	renderNum(MARGIN_LEFT+15*(RADIUS+1),MARGIN_TOP,hours%10,ctx);
+    	renderNum(MARGIN_LEFT+30*(RADIUS+1),MARGIN_TOP,10,ctx);
+    	renderNum(MARGIN_LEFT+39*(RADIUS+1),MARGIN_TOP,parseInt(minutes/10),ctx);
+    	renderNum(MARGIN_LEFT+54*(RADIUS+1),MARGIN_TOP,minutes%10,ctx),
+    	renderNum(MARGIN_LEFT+69*(RADIUS+1),MARGIN_TOP,10,ctx),
+    	renderNum(MARGIN_LEFT+78*(RADIUS+1),MARGIN_TOP,parseInt(seconds/10),ctx);
+    	renderNum(MARGIN_LEFT+93*(RADIUS+1),MARGIN_TOP,seconds%10,ctx);
+    }
+
+    function renderNum( x, y, num, ctx){
+    	ctx.fillStyle = 'rgb(0,102,153)';
+
+    	for(var i = 0; i < digit[num].length; i++){
+    		for(var j = 0; j < digit[num][i].length; j++){
+    			if(digit[num][i][j] == 1){
+    				ctx.beginPath();
+    				ctx.arc( x+(RADIUS+1)*j*2+(RADIUS+1), y+(RADIUS+1)*i*2+(RADIUS+1), RADIUS, 0, 2*Math.PI);
+    				ctx.closePath();
+
+    				ctx.fill();
+    			}
+    		}
+    	}
+    }
+
+    </script>
+</head>
+<body>
+    <canvas id="canvas" style="display:block;margin:50px auto;">
+        当前浏览器不支持Canvas，请更换浏览器后再试
+    </canvas>
+
+    <script src="digit.js"></script>
+    
+</body>
+</html>
