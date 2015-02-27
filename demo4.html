@@ -33,7 +33,7 @@
     		setInterval(function(){
     			render( context );
     			update();
-
+                console.log(balls.length);
     		},50);
 
 
@@ -101,7 +101,21 @@
                     balls[i].vy = -balls[i].vy*0.75; 
                 }
             }
+
+            
+            //优化  删除不在画面的小球
+            var count =0;
+            for(var i = 0; i < balls.length; i++){
+                if((balls[i].x+RADIUS) > 0 && (balls[i].x - RADIUS) < WINDOW_WIDTH){
+                    balls[count++] = balls [i];   //balls数组中只存仍在画面中的小球
+                }
+            }
+
+            while(balls.length > count){
+                balls.pop();   //从数组尾部删除 
+            }
         }
+
 
         function addBall( x, y, num){
             for(var i = 0; i < digit[num].length; i++){
